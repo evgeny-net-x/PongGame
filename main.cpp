@@ -63,14 +63,13 @@ public:
 
 class Ball {
 public:
-	const float defaultVelocity = 450.0;
+	const float defaultVelocity;
 	float velocity;
 	Vector2f dir;
 	CircleShape balls[10];
 
-	Ball(float radius, Vector2f &pos, Vector2f &dir, const Color &color)
+	Ball(float radius, const Color &color): defaultVelocity(450.0)
 	{
-		this->dir = dir;
 		this->velocity = this->defaultVelocity;
 		srand(time(NULL));
 
@@ -78,7 +77,6 @@ public:
 			Color col(color.r, color.g, color.b, color.a - 25*i);
 
 			this->balls[i] = CircleShape(radius);
-			this->balls[i].setPosition(pos);
 			this->balls[i].setFillColor(col);
 		}
 	}
@@ -95,34 +93,23 @@ public:
 	void increaseVelocity(void)
 	{
 		if (this->velocity < 2000)
-			this->velocity *= 1.1;
+			this->velocity *= 1.2;
 	}
 
-	void collision(const Window &window)
+	void setStartingPosition(Window &window)
 	{
-		Vector2f pos = this->balls[0].getPosition();
-		float radius = this->balls[0].getRadius();
 		Vector2u winSize = window.getSize();
+		this->velocity = this->defaultVelocity;
 
-		if (pos.x < 0) {
-			pos.x = 0;
-			this->dir.x *= -1;
-		} else if (pos.x+radius*2 > winSize.x) {
-			pos.x = winSize.x - radius*2;
-			this->dir.x *= -1;
-		} else if (pos.y < 0 || pos.y+radius*2 > winSize.y) {
-			pos.x = winSize.x/2;
-			pos.y = winSize.y/2;
-			this->velocity = this->defaultVelocity;
+		for (int i = 0; i < 10; i++)
+			this->balls[i].setPosition(winSize.x/2-this->balls[i].getRadius(), winSize.y/2-this->balls[i].getRadius());
 
-			// temporary
-			float angle = rand()%55 + 20;
-			float radian = angle*M_PI/180.0;
-			this->dir.x = cos(radian);
-			this->dir.y = sin(radian);
-		}
-
-		this->balls[0].setPosition(pos);
+		// temporary
+		int sign = rand()%2 == 0 ? 1 : -1;;
+		float angle = rand()%55 + 20;
+		float radian = sign*angle*M_PI/180.0;
+		this->dir.x = cos(radian);
+		this->dir.y = sin(radian);
 	}
 
 	bool collision(const RectangleShape &board)
@@ -141,6 +128,7 @@ public:
 
 int main(void)
 {
+	// Settings
 	const int FPS = 30;
 	const int screenScalar = 300;
 	const float ballRadius = 20;
@@ -148,35 +136,47 @@ int main(void)
 	Vector2f boardSize(160, 30);
 	Font font;
 	font.loadFromFile("/Library/Fonts/Arial Unicode.ttf");
-	Color textColor(255, 255, 255, 200);
+	Color gameColor = Color::White;
+	Color backgroundColor(255, 255, 255, 200);
+	Color foregroundColor(30, 30, 30, 200);
+
+	Text resultText = Text();
+	resultText.setFont(font);
+	resultText.setFillColor(gameColor);
+	resultText.setCharacterSize(200);
+	resultText.setPosition(100, windowSize.y/2-130);
+
+	Vector2f foregroundSize(windowSize.x, windowSize.y);
+	RectangleShape foreground(foregroundSize);
+	foreground.setPosition(0, 0);
+	foreground.setFillColor(foregroundColor);
 
 	Vector2f gridPos(windowSize.x, 10);
 	RectangleShape grid(gridPos);
-	grid.setFillColor(textColor);
+	grid.setFillColor(backgroundColor);
 	grid.setPosition(0, windowSize.y/2-5);
 
 	Vector2f playerPos(windowSize.x/2-boardSize.x/2, windowSize.y-boardSize.y-20);
 	Text playerScore = Text();
 	playerScore.setFont(font);
-	playerScore.setFillColor(textColor);
+	playerScore.setFillColor(backgroundColor);
 	playerScore.setCharacterSize(200);
 	playerScore.setPosition(windowSize.x-250, windowSize.y/2);
 
 	Vector2f aiPos(windowSize.x/2-boardSize.x/2, 20);
-	const float aiVelocity = 500;
+	const float aiVelocity = 2800;
 	Text aiScore = Text();
 	aiScore.setFont(font);
-	aiScore.setFillColor(textColor);
+	aiScore.setFillColor(backgroundColor);
 	aiScore.setCharacterSize(200);
 	aiScore.setPosition(windowSize.x-250, windowSize.y/2-250);
 
-	Vector2f ballDir(-0.5/1.25, -1/1.25);
-	Vector2f ballPos(playerPos.x+boardSize.x/2-ballRadius, playerPos.y-ballRadius*2);
-
+	// Game objects
 	RenderWindow window(VideoMode(windowSize.x, windowSize.y), "Pong");
-	Board player(boardSize, playerPos, Color::White);
-	Board ai(boardSize, aiPos, Color::White);
-	Ball ball(ballRadius, ballPos, ballDir, Color::White);
+	Board player(boardSize, playerPos, gameColor);
+	Board ai(boardSize, aiPos, gameColor);
+	Ball ball(ballRadius, gameColor);
+	ball.setStartingPosition(window);
 
 	Clock clock;
 	bool redraw = true;
@@ -191,7 +191,7 @@ int main(void)
 			clock.restart();
 		}
 
-		// Управление
+		// Player move
 		Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == Event::Closed)
@@ -202,10 +202,14 @@ int main(void)
 
 		// AI move
 		float velocity = abs(ball.dir.x);
-		if (aiVelocity < ball.velocity)
-			velocity *= aiVelocity;
-		else
-			velocity *= ball.velocity;
+		bool ballIsLeft = ball.balls[0].getPosition().x+ball.balls[0].getRadius()*2 < ai.board.getPosition().x;
+		bool ballIsRight = ball.balls[0].getPosition().x > ai.board.getPosition().x+ai.board.getSize().x;
+		bool ballDirIsLeft = ball.dir.x < 0;
+
+		if ((ballIsLeft && ballDirIsLeft) || (ballIsRight && !ballDirIsLeft)) // Ball out the board
+			velocity *= aiVelocity; // To catch the ball you need set the max speed
+		else // Ball in the area of the board
+			velocity *= min(ball.velocity, aiVelocity); // You need set the speed no more than the speed of the ball, but not more than the max speed
 
 		if (ball.balls[0].getPosition().x+ball.balls[0].getRadius() < ai.board.getPosition().x+ai.board.getSize().x/2)
 			ai.moveTo(ai.board.getPosition().x+ai.board.getSize().x/2 - delta*velocity, window);
@@ -218,29 +222,19 @@ int main(void)
 		Vector2u winSize = window.getSize();
 
 		if (pos.x < 0) {
-			pos.x = 0;
+			ball.balls[0].move(-pos.x, 0);
 			ball.dir.x *= -1;
 		} else if (pos.x+radius*2 > winSize.x) {
-			pos.x = winSize.x - radius*2;
+			ball.balls[0].move(-pos.x + winSize.x - radius*2, 0);
 			ball.dir.x *= -1;
 		} else if (pos.y < 0 || pos.y+radius*2 > winSize.y) {
-			pos.x = winSize.x/2;
-			pos.y = winSize.y/2;
-			ball.velocity = ball.defaultVelocity;
-
 			if (pos.y < 0)
 				player.score++;
 			else
 				ai.score++;
 
-			// temporary
-			float angle = rand()%55 + 20;
-			float radian = angle*M_PI/180.0;
-			ball.dir.x = cos(radian);
-			ball.dir.y = sin(radian);
+			ball.setStartingPosition(window);
 		}
-
-		ball.balls[0].setPosition(pos);
 
 		// Interact with boards
 		if ((ball.collision(player.board) && ball.dir.y > 0) || (ball.collision(ai.board) && ball.dir.y < 0)) {
@@ -279,11 +273,18 @@ int main(void)
 			window.draw(playerScore);
 			window.draw(aiScore);
 
+			if (player.score == 10 || ai.score == 10) {// Temporary
+				window.draw(foreground);
+				resultText.setString(player.score == 10 ? "YOU WIN!" : "YOU LOSE!");
+				window.draw(resultText);
+				window.display();
+				sleep(seconds(2));
+				break;
+			}
+
+
 			window.display();
                 }
-
-		if (player.score == 10 || ai.score == 10)
-			break;
 	}
 
 	return 0;
