@@ -11,12 +11,13 @@ using namespace sf;
 int main(void)
 {
 	const int FPS = 30;
+	const int maxScore = 10;
 
 	RenderWindow window(VideoMode(1200, 900), "Pong");
 	Ball ball(window);
 	Player player(window);
 	Enemy ai(window);
-	UI ui(window);
+	UI ui(window, maxScore);
 
 	Clock clock;
 	bool redraw = true;

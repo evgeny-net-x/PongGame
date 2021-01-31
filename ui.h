@@ -14,8 +14,9 @@ class UI
 private:
 	sf::RenderWindow &m_window;
 
+	int m_maxScore;
 	bool m_isEnd;
-	sf::Font font;
+	sf::Font m_font;
 
 	sf::Text m_aiScore;
 	sf::Text m_playerScore;
@@ -25,7 +26,7 @@ private:
 	sf::RectangleShape m_foreground;
 
 public:
-	UI(sf::RenderWindow &window);
+	UI(sf::RenderWindow &window, int maxScore);
 
 	void drawUI(void);
 	void drawResult(void);
