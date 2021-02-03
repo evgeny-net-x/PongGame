@@ -1,6 +1,6 @@
 # Pong game
 
-<img src="/example.png" width="300" height="300"/>
+<img src="/example.png" width="400" height="300"/>
 
 This game is implemented with SFML library. In this library there's no default font and because of this you need change path to your font in `ui.cpp` file in constructor.
 
