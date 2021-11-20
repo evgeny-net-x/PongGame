@@ -57,7 +57,7 @@ void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 }
 
 Vector2f Ball::getCenterPosition(void) {
-	CircleShape hitbox = this->getHitbox();
+	CircleShape hitbox = m_hitboxes[0];
     Vector2f pos = hitbox.getPosition();
     const float radius = hitbox.getRadius();
 
@@ -102,9 +102,19 @@ bool Ball::collision(const RectangleShape &board)
 	Vector2f ballPos = this->m_hitboxes[0].getPosition();
 	float ballRadius = this->m_hitboxes[0].getRadius();
 
-	return ballPos.x	      < boardPos.x+boardSize.x &&
-	       ballPos.y	      < boardPos.y+boardSize.y &&
-	       ballPos.x+ballRadius*2 > boardPos.x &&
-	       ballPos.y+ballRadius*2 > boardPos.y;
+    const float boardLeftSide   = boardPos.x;
+    const float boardBottomSide = boardPos.y;
+    const float boardRightSide = boardLeftSide   + boardSize.x;
+    const float boardUpSide    = boardBottomSide + boardSize.y;
+
+    const float ballLeftSide   = ballPos.x;
+    const float ballBottomSide = ballPos.y;
+    const float ballRightSide = ballLeftSide   + ballRadius*2;
+    const float ballUpSide    = ballBottomSide + ballRadius*2;
+
+	return ballLeftSide   < boardRightSide &&
+	       ballBottomSide < boardUpSide    &&
+	       ballRightSide  > boardLeftSide  &&
+	       ballUpSide     > boardBottomSide;
 }
 
