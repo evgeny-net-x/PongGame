@@ -25,7 +25,7 @@ void Ball::draw(void)
 		m_window.draw(m_hitboxes[i]);
 }
 
-void Ball::update(float deltaInSecInSec, Player &player, Enemy &ai)
+void Ball::update(float deltaInSec, Player &player, Enemy &ai)
 {
 	// ball interacts with window
 	Vector2f pos = m_hitboxes[0].getPosition();
@@ -53,12 +53,12 @@ void Ball::update(float deltaInSecInSec, Player &player, Enemy &ai)
 		this->increaseVelocity();
 	}
 
-	this->move(deltaInSecInSec);
+	this->move(deltaInSec);
 }
 
-void Ball::move(float deltaInSecInSec)
+void Ball::move(float deltaInSec)
 {
-	Vector2f pos = this->m_hitboxes[0].getPosition() + deltaInSecInSec*this->m_velocity*this->m_dir;
+	Vector2f pos = this->m_hitboxes[0].getPosition() + deltaInSec*this->m_velocity*this->m_dir;
 
 	for (int i = 9; i >= 1; i--)
 		this->m_hitboxes[i].setPosition(this->m_hitboxes[i-1].getPosition());
