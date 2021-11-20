@@ -8,6 +8,8 @@ class Ball;
 
 #include <SFML/Graphics.hpp>
 
+#define HISTORY_SIZE_OF_BALL_POSITIONS 10
+
 class Ball
 {
 private:
@@ -15,7 +17,7 @@ private:
 	const float m_defaultVelocity = 450.0;
 	float m_velocity;
 	sf::Vector2f m_dir;
-	sf::CircleShape m_hitboxes[10];
+	sf::CircleShape m_hitboxes[HISTORY_SIZE_OF_BALL_POSITIONS];
 
 public:
 	Ball(sf::RenderWindow &window);

@@ -9,7 +9,7 @@ Ball::Ball(RenderWindow &window): m_window(window)
 	this->m_velocity = this->m_defaultVelocity;
 	srand(time(NULL));
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < HISTORY_SIZE_OF_BALL_POSITIONS; i++) {
 		Color color(255, 255, 255, 255 - 25*i);
 
 		this->m_hitboxes[i] = CircleShape(radius);
@@ -76,7 +76,7 @@ void Ball::setStartingPosition(void)
 	Vector2u winSize = m_window.getSize();
 	this->m_velocity = this->m_defaultVelocity;
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < HISTORY_SIZE_OF_BALL_POSITIONS; i++)
 		this->m_hitboxes[i].setPosition(winSize.x/2-this->m_hitboxes[i].getRadius(), winSize.y/2-this->m_hitboxes[i].getRadius());
 
 	// TODO: redo and move the angle definitions into a separate method
