@@ -27,7 +27,7 @@ void Ball::draw(void)
 
 void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 {
-	// ball interacts with window
+	// ball intersects with window
 	Vector2f lastPos = m_hitboxes[0].getPosition();
 	float radius = m_hitboxes[0].getRadius();
 	Vector2u winSize = m_window.getSize();
@@ -47,7 +47,7 @@ void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 		this->setStartingPosition();
 	}
 
-	// ball interacts with boards
+	// ball intersects with boards
 	if ((this->collision(player.getHitbox()) && m_dir.y > 0) || (this->collision(enemy.getHitbox()) && m_dir.y < 0)) {
 		m_dir.y *= -1;
 		this->increaseVelocity();
