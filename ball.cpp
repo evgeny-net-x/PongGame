@@ -28,18 +28,18 @@ void Ball::draw(void)
 void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 {
 	// ball interacts with window
-	Vector2f pos = m_hitboxes[0].getPosition();
+	Vector2f lastPos = m_hitboxes[0].getPosition();
 	float radius = m_hitboxes[0].getRadius();
 	Vector2u winSize = m_window.getSize();
 
-	if (pos.x < 0) {
-		m_hitboxes[0].move(-pos.x, 0);
+	if (lastPos.x < 0) {
+		m_hitboxes[0].move(-lastPos.x, 0);
 		m_dir.x *= -1;
-	} else if (pos.x+radius*2 > winSize.x) {
-		m_hitboxes[0].move(-pos.x + winSize.x - radius*2, 0);
+	} else if (lastPos.x+radius*2 > winSize.x) {
+		m_hitboxes[0].move(-lastPos.x + winSize.x - radius*2, 0);
 		m_dir.x *= -1;
-	} else if (pos.y < 0 || pos.y+radius*2 > winSize.y) {
-		if (pos.y < 0)
+	} else if (lastPos.y < 0 || lastPos.y+radius*2 > winSize.y) {
+		if (lastPos.y < 0)
 			player.setScore(player.getScore()+1);
 		else
 			enemy.setScore(enemy.getScore()+1);
