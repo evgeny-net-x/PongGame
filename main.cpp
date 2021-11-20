@@ -11,7 +11,7 @@ using namespace sf;
 int main(void)
 {
 	const int FPS = 30;
-	const int maxScore = 10;
+	const int maxScore = 1;
 
 	RenderWindow window(VideoMode(1200, 900), "Pong");
 	Ball ball(window);

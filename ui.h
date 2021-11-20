@@ -26,7 +26,8 @@ private:
 	sf::RectangleShape m_grid;
 	sf::RectangleShape m_foreground;
 
-    void initializeText(sf::Text &text, const sf::Color &color, int fontSize);
+    void initializeText(sf::Text &text, const sf::Color &color, const int fontSize);
+    sf::RectangleShape createRectangleShape(const sf::Vector2f size, const sf::Vector2f position, const sf::Color color);
     std::string normalizeScore(int score);
 public:
 	UI(sf::RenderWindow &window, int maxScore);

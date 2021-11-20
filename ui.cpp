@@ -15,20 +15,25 @@ UI::UI(RenderWindow &window, int maxScore): m_window(window)
 	m_font.loadFromFile("/Library/Fonts/Arial Unicode.ttf");
 	Vector2f windowSize(window.getSize().x, window.getSize().y);
 
-	m_foreground = RectangleShape(windowSize);
-	m_foreground.setPosition(0, 0);
-	m_foreground.setFillColor(Color(30, 30, 30, 200));
-
 	Color backgroundColor(255, 255, 255, 200);
-	m_grid = RectangleShape(Vector2f(windowSize.x, 10));
-	m_grid.setFillColor(backgroundColor);
+
+	m_grid = this->createRectangleShape(Vector2f(windowSize.x, 10), Vector2f(0, 0), backgroundColor);
+	m_foreground = this->createRectangleShape(windowSize, Vector2f(0, 0), Color(30, 30, 30, 200));
 
     this->initializeText(m_resultText, Color::White, 120);
     this->initializeText(m_playerScore, backgroundColor, 200);
     this->initializeText(m_aiScore, backgroundColor, 200);
 }
 
-void UI::initializeText(Text &text, const Color &color, int fontSize)
+RectangleShape UI::createRectangleShape(const Vector2f size, const Vector2f position, const Color color) {
+	RectangleShape rect = RectangleShape(size);
+	rect.setPosition(position.x, position.y);
+	rect.setFillColor(color);
+
+    return rect;
+}
+
+void UI::initializeText(Text &text, const Color &color, const int fontSize)
 {
 	text.setFont(m_font);
 	text.setFillColor(color);
