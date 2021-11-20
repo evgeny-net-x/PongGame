@@ -25,10 +25,13 @@ void Enemy::update(float deltaInSec, Ball &ball)
 	else
 		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // equals the enemy's speed to the ball's speed so that it moves smoothly, otherwise there will be jerking
 
-	if (ball.getCenterPosition().x < this->getCenterPosition().x)
-		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - deltaInSec*velocity);
+    const float ballCenterX = ball.getCenterPosition().x;
+    const float enemyCenterX = this->getCenterPosition().x;
+    const float step = deltaInSec*velocity;
+	if (ballCenterX < enemyCenterX)
+		this->moveToX(enemyCenterX - step);
 	else
-		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 + deltaInSec*velocity);
+		this->moveToX(enemyCenterX + step);
 }
 
 Vector2f Enemy::getCenterPosition(void) {
