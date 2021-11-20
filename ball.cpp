@@ -25,7 +25,7 @@ void Ball::draw(void)
 		m_window.draw(m_hitboxes[i]);
 }
 
-void Ball::update(float deltaInSec, Player &player, Enemy &ai)
+void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 {
 	// ball interacts with window
 	Vector2f pos = m_hitboxes[0].getPosition();
@@ -42,13 +42,13 @@ void Ball::update(float deltaInSec, Player &player, Enemy &ai)
 		if (pos.y < 0)
 			player.setScore(player.getScore()+1);
 		else
-			ai.setScore(ai.getScore()+1);
+			enemy.setScore(enemy.getScore()+1);
 
 		this->setStartingPosition();
 	}
 
 	// ball interacts with boards
-	if ((this->collision(player.getHitbox()) && m_dir.y > 0) || (this->collision(ai.getHitbox()) && m_dir.y < 0)) {
+	if ((this->collision(player.getHitbox()) && m_dir.y > 0) || (this->collision(enemy.getHitbox()) && m_dir.y < 0)) {
 		m_dir.y *= -1;
 		this->increaseVelocity();
 	}

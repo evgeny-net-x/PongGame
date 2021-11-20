@@ -21,7 +21,7 @@ public:
 	Ball(sf::RenderWindow &window);
 
 	void draw(void);
-	void update(float deltaInSec, Player &player, Enemy &ai);
+	void update(float deltaInSec, Player &player, Enemy &enemy);
 
 	void move(float deltaInSec);
 	void increaseVelocity(void);
