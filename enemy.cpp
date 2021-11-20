@@ -25,11 +25,18 @@ void Enemy::update(float deltaInSec, Ball &ball)
 	else
 		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // equals the enemy's speed to the ball's speed so that it moves smoothly, otherwise there will be jerking
 
-	CircleShape ballHitbox = ball.getHitbox();
-	if (ballHitbox.getPosition().x+ballHitbox.getRadius() < m_hitbox.getPosition().x+m_hitbox.getSize().x/2)
+	if (ball.getCenterPosition().x < this->getCenterPosition().x)
 		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - deltaInSec*velocity);
 	else
 		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 + deltaInSec*velocity);
+}
+
+Vector2f Enemy::getCenterPosition(void) {
+    Vector2f pos = m_hitbox.getPosition();
+    Vector2f size = m_hitbox.getSize();
+    Vector2f halfSize = Vector2f(size.x/2, size.y/2);
+
+    return pos + halfSize;
 }
 
 bool Enemy::ballOutsideVerticalBounds(Ball &ball) {

@@ -29,6 +29,7 @@ public:
 	void increaseVelocity(void);
 	void setStartingPosition(void);
 	bool collision(const sf::RectangleShape &board);
+    sf::Vector2f getCenterPosition(void);
 
 	sf::Vector2f getDirection(void) { return m_dir; }
 	sf::CircleShape getHitbox(void) { return m_hitboxes[0]; }

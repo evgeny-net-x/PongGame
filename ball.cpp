@@ -56,6 +56,14 @@ void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 	this->move(deltaInSec);
 }
 
+Vector2f Ball::getCenterPosition(void) {
+	CircleShape hitbox = this->getHitbox();
+    Vector2f pos = hitbox.getPosition();
+    const float radius = hitbox.getRadius();
+
+    return Vector2f(pos.x+radius, pos.y+radius);
+}
+
 void Ball::move(float deltaInSec)
 {
 	Vector2f newLastPos = this->m_hitboxes[0].getPosition() + deltaInSec*this->m_velocity*this->m_dir;

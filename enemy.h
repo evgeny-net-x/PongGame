@@ -25,6 +25,7 @@ public:
 	void update(float deltaInSec, Ball &ball);
 	void moveToX(int x);
 
+    sf::Vector2f getCenterPosition(void);
 	int getScore(void);
 	sf::RectangleShape getHitbox(void);
 
