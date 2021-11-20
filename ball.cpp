@@ -58,11 +58,11 @@ void Ball::update(float deltaInSec, Player &player, Enemy &enemy)
 
 void Ball::move(float deltaInSec)
 {
-	Vector2f pos = this->m_hitboxes[0].getPosition() + deltaInSec*this->m_velocity*this->m_dir;
+	Vector2f newLastPos = this->m_hitboxes[0].getPosition() + deltaInSec*this->m_velocity*this->m_dir;
 
 	for (int i = 9; i >= 1; i--)
 		this->m_hitboxes[i].setPosition(this->m_hitboxes[i-1].getPosition());
-	this->m_hitboxes[0].setPosition(pos);
+	this->m_hitboxes[0].setPosition(newLastPos);
 }
 
 void Ball::increaseVelocity(void)
