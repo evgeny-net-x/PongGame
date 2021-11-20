@@ -79,7 +79,7 @@ void Ball::setStartingPosition(void)
 	for (int i = 0; i < 10; i++)
 		this->m_hitboxes[i].setPosition(winSize.x/2-this->m_hitboxes[i].getRadius(), winSize.y/2-this->m_hitboxes[i].getRadius());
 
-	// temporary
+	// TODO: redo and move the angle definitions into a separate method
 	int sign = rand()%2 == 0 ? 1 : -1;;
 	float angle = rand()%55 + 20;
 	float radian = sign*angle*M_PI/180.0;
