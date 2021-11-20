@@ -29,7 +29,7 @@ void Enemy::update(float deltaInSec, Ball &ball)
 	if ((ballIsLeft && ballDirIsLeft) || (ballIsRight && !ballDirIsLeft)) // Ball out the board
 		velocity *= m_maxVelocity; // To catch the ball you need set the max speed
 	else // Ball in the area of the board
-		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // You need set the speed no more than the speed of the ball, but not more than the max speed
+		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // equals the enemy's speed to the ball's speed so that it moves smoothly, otherwise there will be jerking
 
 	if (hitbox.getPosition().x+hitbox.getRadius() < m_hitbox.getPosition().x+m_hitbox.getSize().x/2)
 		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - deltaInSec*velocity);
