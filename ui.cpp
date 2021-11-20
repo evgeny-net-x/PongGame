@@ -49,26 +49,26 @@ void UI::drawResult(void)
 	m_window.draw(m_resultText);
 }
 
-void UI::update(Player &player, Enemy &ai)
+void UI::update(Player &player, Enemy &enemy)
 {
 	m_grid.setSize(Vector2f(m_window.getSize().x, 10));
 	m_grid.setPosition(0, m_window.getSize().y/2-5);
 
-	stringstream score1;
+	stringstream playerScore;
 	if (player.getScore() < m_maxScore)
-		score1 << 0;
-	score1 << player.getScore();
-	m_playerScore.setString(score1.str());
+		playerScore << 0;
+	playerScore << player.getScore();
+	m_playerScore.setString(playerScore.str());
 	m_playerScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2);
 
-	stringstream score2;
-	if (ai.getScore() < m_maxScore)
-		score2 << 0;
-	score2 << ai.getScore();
-	m_aiScore.setString(score2.str());
+	stringstream enemyScore;
+	if (enemy.getScore() < m_maxScore)
+		enemyScore << 0;
+	enemyScore << enemy.getScore();
+	m_aiScore.setString(enemyScore.str());
 	m_aiScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2-250);
 
-	if (player.getScore() == m_maxScore || ai.getScore() == m_maxScore) {
+	if (player.getScore() == m_maxScore || enemy.getScore() == m_maxScore) {
 		m_isEnd = true;
 		m_resultText.setString(player.getScore() == m_maxScore ? "YOU WIN!" : "YOU LOSE!");
 		m_resultText.setPosition(m_window.getSize().x/2 - 300, m_window.getSize().y/2-80);
