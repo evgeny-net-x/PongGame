@@ -19,21 +19,20 @@ UI::UI(RenderWindow &window, int maxScore): m_window(window)
 	m_foreground.setPosition(0, 0);
 	m_foreground.setFillColor(Color(30, 30, 30, 200));
 
-	m_resultText.setFont(m_font);
-	m_resultText.setFillColor(Color::White);
-	m_resultText.setCharacterSize(120);
-
 	Color backgroundColor(255, 255, 255, 200);
 	m_grid = RectangleShape(Vector2f(windowSize.x, 10));
 	m_grid.setFillColor(backgroundColor);
 
-	m_playerScore.setFont(m_font);
-	m_playerScore.setFillColor(backgroundColor);
-	m_playerScore.setCharacterSize(200);
+    this->initializeText(m_resultText, Color::White, 120);
+    this->initializeText(m_playerScore, backgroundColor, 200);
+    this->initializeText(m_aiScore, backgroundColor, 200);
+}
 
-	m_aiScore.setFont(m_font);
-	m_aiScore.setFillColor(backgroundColor);
-	m_aiScore.setCharacterSize(200);
+void UI::initializeText(Text &text, const Color &color, int fontSize)
+{
+	text.setFont(m_font);
+	text.setFillColor(color);
+	text.setCharacterSize(fontSize);
 }
 
 void UI::drawUI(void)
@@ -54,18 +53,12 @@ void UI::update(Player &player, Enemy &enemy)
 	m_grid.setSize(Vector2f(m_window.getSize().x, 10));
 	m_grid.setPosition(0, m_window.getSize().y/2-5);
 
-	stringstream playerScore;
-	if (player.getScore() < m_maxScore)
-		playerScore << 0;
-	playerScore << player.getScore();
-	m_playerScore.setString(playerScore.str());
+    const string playerScore = this->normalizeScore(player.getScore());
+	m_playerScore.setString(playerScore);
 	m_playerScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2);
 
-	stringstream enemyScore;
-	if (enemy.getScore() < m_maxScore)
-		enemyScore << 0;
-	enemyScore << enemy.getScore();
-	m_aiScore.setString(enemyScore.str());
+    const string enemyScore = this->normalizeScore(enemy.getScore());
+	m_aiScore.setString(enemyScore);
 	m_aiScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2-250);
 
 	if (player.getScore() == m_maxScore || enemy.getScore() == m_maxScore) {
@@ -73,4 +66,13 @@ void UI::update(Player &player, Enemy &enemy)
 		m_resultText.setString(player.getScore() == m_maxScore ? "YOU WIN!" : "YOU LOSE!");
 		m_resultText.setPosition(m_window.getSize().x/2 - 300, m_window.getSize().y/2-80);
 	}
+}
+
+string UI::normalizeScore(int score) {
+    stringstream scoreStream;
+    if (score < m_maxScore)
+        scoreStream << 0;
+
+    scoreStream << score;
+    return scoreStream.str();
 }

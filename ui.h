@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <string>
+#include <iostream>
 
 #include <SFML/Graphics.hpp>
 
@@ -25,6 +26,8 @@ private:
 	sf::RectangleShape m_grid;
 	sf::RectangleShape m_foreground;
 
+    void initializeText(sf::Text &text, const sf::Color &color, int fontSize);
+    std::string normalizeScore(int score);
 public:
 	UI(sf::RenderWindow &window, int maxScore);
 

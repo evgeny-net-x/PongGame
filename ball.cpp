@@ -1,5 +1,5 @@
 #include "ball.h"
-
+#include <iostream>
 using namespace sf;
 
 Ball::Ball(RenderWindow &window): m_window(window)
