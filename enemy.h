@@ -17,6 +17,7 @@ private:
 	sf::RenderWindow &m_window;
 	sf::RectangleShape m_hitbox;
 
+    bool ballOutsideVerticalBounds(Ball &ball);
 public:
 	Enemy(sf::RenderWindow &window);
 

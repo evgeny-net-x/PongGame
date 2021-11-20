@@ -18,24 +18,30 @@ void Enemy::draw(void)
 
 void Enemy::update(float deltaInSec, Ball &ball)
 {
-	Vector2f dir = ball.getDirection();
-	CircleShape hitbox = ball.getHitbox();
+	float velocity = abs(ball.getDirection().x);
 
-	float velocity = abs(dir.x);
-	bool ballIsLeft = hitbox.getPosition().x+hitbox.getRadius()*2 < m_hitbox.getPosition().x;
-	bool ballIsRight = hitbox.getPosition().x > m_hitbox.getPosition().x+m_hitbox.getSize().x;
-	bool ballDirIsLeft = dir.x < 0;
-
-	if ((ballIsLeft && ballDirIsLeft) || (ballIsRight && !ballDirIsLeft)) // Ball out the board
+	if (this->ballOutsideVerticalBounds(ball))
 		velocity *= m_maxVelocity; // To catch the ball you need set the max speed
 	else
 		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // equals the enemy's speed to the ball's speed so that it moves smoothly, otherwise there will be jerking
 
-	if (hitbox.getPosition().x+hitbox.getRadius() < m_hitbox.getPosition().x+m_hitbox.getSize().x/2)
+	CircleShape ballHitbox = ball.getHitbox();
+	if (ballHitbox.getPosition().x+ballHitbox.getRadius() < m_hitbox.getPosition().x+m_hitbox.getSize().x/2)
 		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - deltaInSec*velocity);
 	else
 		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 + deltaInSec*velocity);
 }
+
+bool Enemy::ballOutsideVerticalBounds(Ball &ball) {
+	CircleShape hitbox = ball.getHitbox();
+
+	bool ballIsLeft = hitbox.getPosition().x+hitbox.getRadius()*2 < m_hitbox.getPosition().x;
+	bool ballIsRight = hitbox.getPosition().x > m_hitbox.getPosition().x+m_hitbox.getSize().x;
+	bool ballDirIsLeft = ball.getDirection().x < 0;
+
+	return ((ballIsLeft && ballDirIsLeft) || (ballIsRight && !ballDirIsLeft));
+}
+
 
 void Enemy::moveToX(int x)
 {
