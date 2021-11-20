@@ -16,7 +16,7 @@ void Enemy::draw(void)
 	m_window.draw(m_hitbox);
 }
 
-void Enemy::update(float delta, Ball &ball)
+void Enemy::update(float deltaInSec, Ball &ball)
 {
 	Vector2f dir = ball.getDirection();
 	CircleShape hitbox = ball.getHitbox();
@@ -32,9 +32,9 @@ void Enemy::update(float delta, Ball &ball)
 		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // You need set the speed no more than the speed of the ball, but not more than the max speed
 
 	if (hitbox.getPosition().x+hitbox.getRadius() < m_hitbox.getPosition().x+m_hitbox.getSize().x/2)
-		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - delta*velocity);
+		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - deltaInSec*velocity);
 	else
-		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 + delta*velocity);
+		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 + deltaInSec*velocity);
 }
 
 void Enemy::moveToX(int x)

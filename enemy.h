@@ -21,7 +21,7 @@ public:
 	Enemy(sf::RenderWindow &window);
 
 	void draw(void);
-	void update(float delta, Ball &ball);
+	void update(float deltaInSec, Ball &ball);
 	void moveToX(int x);
 
 	int getScore(void);

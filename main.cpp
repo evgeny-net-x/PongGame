@@ -23,9 +23,9 @@ int main(void)
 	bool redraw = true;
 
 	while (window.isOpen()) {
-		float delta = clock.getElapsedTime().asSeconds();
-		if (delta < 1.0/FPS)
-			sleep(seconds(1.0/FPS - delta));
+		float deltaInSec = clock.getElapsedTime().asSeconds();
+		if (deltaInSec < 1.0/FPS)
+			sleep(seconds(1.0/FPS - deltaInSec));
 		else {
 			redraw = true;
 			clock.restart();
@@ -49,8 +49,8 @@ int main(void)
 			}
 		}
 
-		ai.update(delta, ball);
-		ball.update(delta, player, ai);
+		ai.update(deltaInSec, ball);
+		ball.update(deltaInSec, player, ai);
 		ui.update(player, ai);
 
 		if (redraw) {

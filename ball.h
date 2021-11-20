@@ -21,9 +21,9 @@ public:
 	Ball(sf::RenderWindow &window);
 
 	void draw(void);
-	void update(float delta, Player &player, Enemy &ai);
+	void update(float deltaInSecInSec, Player &player, Enemy &ai);
 
-	void move(float delta);
+	void move(float deltaInSec);
 	void increaseVelocity(void);
 	void setStartingPosition(void);
 	bool collision(const sf::RectangleShape &board);
