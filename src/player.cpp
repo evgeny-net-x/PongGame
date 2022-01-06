@@ -2,7 +2,7 @@
 
 using namespace sf;
 
-Player::Player(RenderWindow &window): m_window(window)
+Player::Player(RenderWindow &window): GameObject("player"), m_window(window)
 {
 	m_score = 0;
 
@@ -17,7 +17,7 @@ void Player::draw(void)
 	m_window.draw(m_hitbox);
 }
 
-void Player::update(void)
+void Player::update(float deltaSec)
 {
 	this->moveToX(Mouse::getPosition().x - m_window.getPosition().x);
 }

@@ -7,9 +7,11 @@
 
 class Enemy;
 
+#include "gameObject.h"
+#include "game.h"
 #include "ball.h"
 
-class Enemy
+class Enemy: public GameObject
 {
 private:
 	const float m_maxVelocity = 2800;
@@ -20,10 +22,13 @@ private:
 public:
 	Enemy(sf::RenderWindow &window);
 
-	void draw(void);
-	void update(float delta, Ball &ball);
+	virtual void draw(void) override;
+	virtual void update(float deltaSec) override;
 	void moveToX(int x);
 
+    bool ballOutsideVerticalBounds(Ball &ball);
+
+    sf::Vector2f getCenterPosition(void);
 	int getScore(void);
 	sf::RectangleShape getHitbox(void);
 

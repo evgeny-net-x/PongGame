@@ -2,14 +2,14 @@
 
 using namespace sf;
 
-Ball::Ball(RenderWindow &window): m_window(window)
+Ball::Ball(RenderWindow &window): GameObject("ball"), m_window(window)
 {
 	const float radius = 20;
 
 	this->m_velocity = this->m_defaultVelocity;
 	srand(time(NULL));
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < HISTORY_SIZE_OF_BALL_POSITIONS; i++) {
 		Color color(255, 255, 255, 255 - 25*i);
 
 		this->m_hitboxes[i] = CircleShape(radius);
@@ -19,50 +19,62 @@ Ball::Ball(RenderWindow &window): m_window(window)
 	this->setStartingPosition();
 }
 
+Vector2f Ball::getCenterPosition(void) {
+	CircleShape hitbox = m_hitboxes[0];
+    Vector2f pos = hitbox.getPosition();
+    const float radius = hitbox.getRadius();
+
+    return Vector2f(pos.x+radius, pos.y+radius);
+}
+
 void Ball::draw(void)
 {
-	for (int i = 9; i > 0; i--)
+	for (int i = HISTORY_SIZE_OF_BALL_POSITIONS-1; i > 0; i--)
 		m_window.draw(m_hitboxes[i]);
 }
 
-void Ball::update(float delta, Player &player, Enemy &ai)
+void Ball::update(float deltaSec)
 {
-	// ball interacts with window
-	Vector2f pos = m_hitboxes[0].getPosition();
+    Game *game = Game::getInstance();
+    Player *player = (Player *) game->findChild("player");
+    Enemy *enemy = (Enemy *) game->findChild("enemy");
+
+	// ball intersects with window
+	Vector2f currentPos = m_hitboxes[0].getPosition();
 	float radius = m_hitboxes[0].getRadius();
 	Vector2u winSize = m_window.getSize();
 
-	if (pos.x < 0) {
-		m_hitboxes[0].move(-pos.x, 0);
+	if (currentPos.x < 0) {
+		m_hitboxes[0].move(-currentPos.x, 0);
 		m_dir.x *= -1;
-	} else if (pos.x+radius*2 > winSize.x) {
-		m_hitboxes[0].move(-pos.x + winSize.x - radius*2, 0);
+	} else if (currentPos.x+radius*2 > winSize.x) {
+		m_hitboxes[0].move(-currentPos.x + winSize.x - radius*2, 0);
 		m_dir.x *= -1;
-	} else if (pos.y < 0 || pos.y+radius*2 > winSize.y) {
-		if (pos.y < 0)
-			player.setScore(player.getScore()+1);
+	} else if (currentPos.y < 0 || currentPos.y+radius*2 > winSize.y) {
+		if (currentPos.y < 0)
+			player->setScore(player->getScore()+1);
 		else
-			ai.setScore(ai.getScore()+1);
+			enemy->setScore(enemy->getScore()+1);
 
 		this->setStartingPosition();
 	}
 
-	// ball interacts with boards
-	if ((this->collision(player.getHitbox()) && m_dir.y > 0) || (this->collision(ai.getHitbox()) && m_dir.y < 0)) {
+	// ball intersects with boards
+	if ((this->collision(player->getHitbox()) && m_dir.y > 0) || (this->collision(enemy->getHitbox()) && m_dir.y < 0)) {
 		m_dir.y *= -1;
 		this->increaseVelocity();
 	}
 
-	this->move(delta);
+	this->move(deltaSec);
 }
 
-void Ball::move(float delta)
+void Ball::move(float deltaSec)
 {
-	Vector2f pos = this->m_hitboxes[0].getPosition() + delta*this->m_velocity*this->m_dir;
+	Vector2f nextLastPos = this->m_hitboxes[0].getPosition() + deltaSec*this->m_velocity*this->m_dir;
 
-	for (int i = 9; i >= 1; i--)
+	for (int i = HISTORY_SIZE_OF_BALL_POSITIONS-1; i >= 1; i--)
 		this->m_hitboxes[i].setPosition(this->m_hitboxes[i-1].getPosition());
-	this->m_hitboxes[0].setPosition(pos);
+	this->m_hitboxes[0].setPosition(nextLastPos);
 }
 
 void Ball::increaseVelocity(void)
@@ -76,10 +88,10 @@ void Ball::setStartingPosition(void)
 	Vector2u winSize = m_window.getSize();
 	this->m_velocity = this->m_defaultVelocity;
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < HISTORY_SIZE_OF_BALL_POSITIONS; i++)
 		this->m_hitboxes[i].setPosition(winSize.x/2-this->m_hitboxes[i].getRadius(), winSize.y/2-this->m_hitboxes[i].getRadius());
 
-	// temporary
+    // TODO: redo and move the angle definitions into a separate method
 	int sign = rand()%2 == 0 ? 1 : -1;;
 	float angle = rand()%55 + 20;
 	float radian = sign*angle*M_PI/180.0;
@@ -94,9 +106,19 @@ bool Ball::collision(const RectangleShape &board)
 	Vector2f ballPos = this->m_hitboxes[0].getPosition();
 	float ballRadius = this->m_hitboxes[0].getRadius();
 
-	return ballPos.x	      < boardPos.x+boardSize.x &&
-	       ballPos.y	      < boardPos.y+boardSize.y &&
-	       ballPos.x+ballRadius*2 > boardPos.x &&
-	       ballPos.y+ballRadius*2 > boardPos.y;
+    const float boardLeftSide   = boardPos.x;
+    const float boardBottomSide = boardPos.y;
+    const float boardRightSide = boardLeftSide   + boardSize.x;
+    const float boardUpSide    = boardBottomSide + boardSize.y;
+
+    const float ballLeftSide   = ballPos.x;
+    const float ballBottomSide = ballPos.y;
+    const float ballRightSide = ballLeftSide   + ballRadius*2;
+    const float ballUpSide    = ballBottomSide + ballRadius*2;
+
+	return ballLeftSide   < boardRightSide &&
+	       ballBottomSide < boardUpSide    &&
+	       ballRightSide  > boardLeftSide  &&
+	       ballUpSide     > boardBottomSide;
 }
 

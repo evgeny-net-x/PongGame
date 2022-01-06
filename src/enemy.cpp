@@ -2,7 +2,7 @@
 
 using namespace sf;
 
-Enemy::Enemy(RenderWindow &window): m_window(window)
+Enemy::Enemy(RenderWindow &window): GameObject("enemy"), m_window(window)
 {
 	m_score = 0;
 
@@ -16,25 +16,45 @@ void Enemy::draw(void)
 	m_window.draw(m_hitbox);
 }
 
-void Enemy::update(float delta, Ball &ball)
+void Enemy::update(float deltaSec)
 {
-	Vector2f dir = ball.getDirection();
-	CircleShape hitbox = ball.getHitbox();
+    Game *game = Game::getInstance();
+    Ball *ball = (Ball *) game->findChild("ball");
+
+	Vector2f dir = ball->getDirection();
+	CircleShape hitbox = ball->getHitbox();
 
 	float velocity = abs(dir.x);
+
+    if (this->ballOutsideVerticalBounds(*ball))
+		velocity *= m_maxVelocity; // To catch the ball you need set the max speed
+	else
+		velocity *= fmin(ball->getVelocity(), m_maxVelocity); // equals the enemy's speed to the ball's speed so that it moves smoothly, otherwise there will be jerking
+
+    const float ballCenterX = ball->getCenterPosition().x;
+    const float enemyCenterX = this->getCenterPosition().x;
+	if (ballCenterX < enemyCenterX)
+		this->moveToX(enemyCenterX - deltaSec*velocity);
+	else
+		this->moveToX(enemyCenterX + deltaSec*velocity);
+}
+
+Vector2f Enemy::getCenterPosition(void) {
+    Vector2f pos = m_hitbox.getPosition();
+    Vector2f size = m_hitbox.getSize();
+    Vector2f halfSize = Vector2f(size.x/2, size.y/2);
+
+    return pos + halfSize;
+}
+
+bool Enemy::ballOutsideVerticalBounds(Ball &ball) {
+	CircleShape hitbox = ball.getHitbox();
+
 	bool ballIsLeft = hitbox.getPosition().x+hitbox.getRadius()*2 < m_hitbox.getPosition().x;
 	bool ballIsRight = hitbox.getPosition().x > m_hitbox.getPosition().x+m_hitbox.getSize().x;
-	bool ballDirIsLeft = dir.x < 0;
+	bool ballDirIsLeft = ball.getDirection().x < 0;
 
-	if ((ballIsLeft && ballDirIsLeft) || (ballIsRight && !ballDirIsLeft)) // Ball out the board
-		velocity *= m_maxVelocity; // To catch the ball you need set the max speed
-	else // Ball in the area of the board
-		velocity *= fmin(ball.getVelocity(), m_maxVelocity); // You need set the speed no more than the speed of the ball, but not more than the max speed
-
-	if (hitbox.getPosition().x+hitbox.getRadius() < m_hitbox.getPosition().x+m_hitbox.getSize().x/2)
-		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 - delta*velocity);
-	else
-		this->moveToX(m_hitbox.getPosition().x+m_hitbox.getSize().x/2 + delta*velocity);
+	return ((ballIsLeft && ballDirIsLeft) || (ballIsRight && !ballDirIsLeft));
 }
 
 void Enemy::moveToX(int x)

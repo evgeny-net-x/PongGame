@@ -1,5 +1,5 @@
-#include <SFML/Graphics.hpp>
-
+#include "../include/gameObject.h"
+#include "../include/game.h"
 #include "../include/ball.h"
 #include "../include/player.h"
 #include "../include/enemy.h"
@@ -10,68 +10,19 @@ using namespace sf;
 
 int main(void)
 {
-	const int FPS = 30;
-	const int maxScore = 10;
+    Game *game = Game::getInstance();
 
-	RenderWindow window(VideoMode(1200, 900), "Pong");
-	Ball ball(window);
-	Player player(window);
-	Enemy ai(window);
-	UI ui(window, maxScore);
+    Ball ball(game->m_window);
+    Player player(game->m_window);
+    Enemy enemy(game->m_window);
+    UI ui(game->m_window, game->m_maxScore);
 
-	Clock clock;
-	bool redraw = true;
+	game->addChild(static_cast<GameObject &>(ball));
+	game->addChild(static_cast<GameObject &>(player));
+	game->addChild(static_cast<GameObject &>(enemy));
+	game->addChild(static_cast<GameObject &>(ui));
 
-	while (window.isOpen()) {
-		float delta = clock.getElapsedTime().asSeconds();
-		if (delta < 1.0/FPS)
-			sleep(seconds(1.0/FPS - delta));
-		else {
-			redraw = true;
-			clock.restart();
-		}
+    game->start();
 
-		Event event;
-		while (window.pollEvent(event)) {
-			if (event.type == Event::Closed)
-				window.close();
-			else if (event.type == Event::MouseMoved)
-				player.update();
-			else if (event.type == Event::Resized) { // set minimum size
-				if (event.size.width < 720)
-					event.size.width = 720;
-
-				if (event.size.height < 540)
-					event.size.height = 540;
-
-				window.setSize(Vector2u(event.size.width, event.size.height));
-				window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-			}
-		}
-
-		ai.update(delta, ball);
-		ball.update(delta, player, ai);
-		ui.update(player, ai);
-
-		if (redraw) {
-			redraw = false;
-			window.clear(Color(30, 30, 30));
-
-			player.draw();
-			ai.draw();
-			ball.draw();
-
-			if (ui.isEnd()) {
-				ui.drawResult();
-				window.display();
-				sleep(seconds(2));
-				break;
-			}
-
-			ui.drawUI();
-			window.display();
-		}
-	}
-
-	return 0;
+    return 0;
 }

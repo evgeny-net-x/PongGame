@@ -2,8 +2,9 @@
 #define __PLAYER_H__
 
 #include <SFML/Graphics.hpp>
+#include "gameObject.h"
 
-class Player
+class Player: public GameObject
 {
 private:
 	int m_score;
@@ -16,8 +17,8 @@ protected:
 public:
 	Player(sf::RenderWindow &window);
 
-	void draw(void);
-	void update(void);
+	virtual void draw(void);
+	virtual void update(float deltaSec);
 
 	int getScore(void);
 	sf::RectangleShape getHitbox(void);

@@ -3,7 +3,7 @@
 using namespace sf;
 using namespace std;
 
-UI::UI(RenderWindow &window, int maxScore): m_window(window)
+UI::UI(RenderWindow &window, int maxScore): GameObject("ui"), m_window(window)
 {
 	if (maxScore < 0)
 		maxScore = 1;
@@ -15,32 +15,49 @@ UI::UI(RenderWindow &window, int maxScore): m_window(window)
 	m_font.loadFromFile("/Library/Fonts/Arial Unicode.ttf");
 	Vector2f windowSize(window.getSize().x, window.getSize().y);
 
-	m_foreground = RectangleShape(windowSize);
-	m_foreground.setPosition(0, 0);
-	m_foreground.setFillColor(Color(30, 30, 30, 200));
-
-	m_resultText.setFont(m_font);
-	m_resultText.setFillColor(Color::White);
-	m_resultText.setCharacterSize(120);
-
 	Color backgroundColor(255, 255, 255, 200);
-	m_grid = RectangleShape(Vector2f(windowSize.x, 10));
-	m_grid.setFillColor(backgroundColor);
 
-	m_playerScore.setFont(m_font);
-	m_playerScore.setFillColor(backgroundColor);
-	m_playerScore.setCharacterSize(200);
+    m_grid = this->createRectangleShape(Vector2f(windowSize.x, 10), Vector2f(0, 0), backgroundColor);
+	m_foreground = this->createRectangleShape(windowSize, Vector2f(0, 0), Color(30, 30, 30, 200));
 
-	m_aiScore.setFont(m_font);
-	m_aiScore.setFillColor(backgroundColor);
-	m_aiScore.setCharacterSize(200);
+    this->initializeText(m_resultText, Color::White, 120);
+    this->initializeText(m_playerScore, backgroundColor, 200);
+    this->initializeText(m_enemyScore, backgroundColor, 200);
+}
+
+RectangleShape UI::createRectangleShape(const Vector2f size, const Vector2f position, const Color color) {
+	RectangleShape rect = RectangleShape(size);
+	rect.setPosition(position.x, position.y);
+	rect.setFillColor(color);
+
+    return rect;
+}
+
+void UI::initializeText(Text &text, const Color &color, const int fontSize)
+{
+	text.setFont(m_font);
+	text.setFillColor(color);
+	text.setCharacterSize(fontSize);
+}
+
+void UI::draw(void)
+{
+	if (this->isEnd()) {
+        this->drawResult();
+        m_window.display();
+        sleep(seconds(2));
+        exit(1);
+    }
+
+    this->drawUI();
+    m_window.display();
 }
 
 void UI::drawUI(void)
 {
 	m_window.draw(m_grid);
 	m_window.draw(m_playerScore);
-	m_window.draw(m_aiScore);
+	m_window.draw(m_enemyScore);
 }
 
 void UI::drawResult(void)
@@ -49,28 +66,36 @@ void UI::drawResult(void)
 	m_window.draw(m_resultText);
 }
 
-void UI::update(Player &player, Enemy &ai)
+void UI::update(float deltaSec)
 {
+    Game *game = Game::getInstance();
+    Enemy *enemy = (Enemy *) game->findChild("enemy");
+    Player *player = (Player *) game->findChild("player");
+
 	m_grid.setSize(Vector2f(m_window.getSize().x, 10));
 	m_grid.setPosition(0, m_window.getSize().y/2-5);
 
-	stringstream score1;
-	if (player.getScore() < m_maxScore)
-		score1 << 0;
-	score1 << player.getScore();
-	m_playerScore.setString(score1.str());
+	const string playerScore = this->normalizeScore(player->getScore());
+	m_playerScore.setString(playerScore);
 	m_playerScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2);
 
-	stringstream score2;
-	if (ai.getScore() < m_maxScore)
-		score2 << 0;
-	score2 << ai.getScore();
-	m_aiScore.setString(score2.str());
-	m_aiScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2-250);
+	const string enemyScore = this->normalizeScore(enemy->getScore());
+	m_enemyScore.setString(enemyScore);
+	m_enemyScore.setPosition(m_window.getSize().x-250, m_window.getSize().y/2-250);
 
-	if (player.getScore() == m_maxScore || ai.getScore() == m_maxScore) {
+	if (player->getScore() == m_maxScore || enemy->getScore() == m_maxScore) {
 		m_isEnd = true;
-		m_resultText.setString(player.getScore() == m_maxScore ? "YOU WIN!" : "YOU LOSE!");
+		m_resultText.setString(player->getScore() == m_maxScore ? "YOU WIN!" : "YOU LOSE!");
 		m_resultText.setPosition(m_window.getSize().x/2 - 300, m_window.getSize().y/2-80);
 	}
 }
+
+string UI::normalizeScore(int score) {
+    stringstream scoreStream;
+    if (score < m_maxScore)
+        scoreStream << 0;
+
+    scoreStream << score;
+    return scoreStream.str();
+}
+
